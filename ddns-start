@@ -1,0 +1,55 @@
+BASEURL="https://api.cloudflare.com/client/v4"
+
+## CONFIG END
+
+source ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY
+
+function updateCloudflare {
+    curl -X PUT "${BASEURL}/zones/${ZONE_ID}/dns_records/${ZONE_OID}" \
+        -H "X-Auth-Email: ${AUTH_EMAIL}" \
+        -H "X-Auth-Key: ${AUTH_KEY}" \
+        -H "Content-Type: application/json" \
+        --data "${JSONDATA}" 2>/dev/null
+}
+
+# Variable initialization
+rv=0
+
+# Config check
+if [ -z "${ZONE_ID}" ]; then
+    rv=1
+elif [ -z "${ZONE_OID}" ]; then
+    rv=1
+elif [ -z "${DOMAIN_NAME}" ]; then
+    rv=1
+elif [ -z "${AUTH_EMAIL}" ]; then
+    rv=1
+elif [ -z "${AUTH_KEY}" ]; then
+    rv=1
+fi
+
+# Construct JSON for sending to CloudFlare
+JSONDATA='{"type":"A","name":"'
+JSONDATA="${JSONDATA}${DOMAIN_NAME}"
+JSONDATA="${JSONDATA}\",\"content\":\""
+JSONDATA="${JSONDATA}${1}"
+JSONDATA="${JSONDATA}\"}"
+
+# Tell CloudFlare about our IP
+if [ "$rv" == 0 ]; then
+    OUTPUT="$(updateCloudflare)"
+    if [ "$?" == 0 ]; then
+        echo "$OUTPUT" | grep -E '"success":.?true'
+        rv="$?"
+    else
+        rv=1
+    fi
+fi
+
+# /sbin/ddns_custom_updated is the other way around, as it takes 1 as success, and 0 on failure
+if [ "$rv" == 0 ]; then
+    /sbin/ddns_custom_updated 1
+else
+    echo nope
+    /sbin/ddns_custom_updated 0
+fi
