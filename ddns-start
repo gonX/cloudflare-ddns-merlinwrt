@@ -1,3 +1,5 @@
+#!/bin/sh
+
 BASEURL="https://api.cloudflare.com/client/v4"
 
 ## CONFIG END
