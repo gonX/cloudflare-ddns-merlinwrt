@@ -19,14 +19,19 @@ rv=0
 
 # Config check
 if [ -z "${ZONE_ID}" ]; then
+    echo no zone id
     rv=1
 elif [ -z "${ZONE_OID}" ]; then
+    echo no zone oid
     rv=1
 elif [ -z "${DOMAIN_NAME}" ]; then
+    echo no domain name
     rv=1
 elif [ -z "${AUTH_EMAIL}" ]; then
+    echo no auth email
     rv=1
 elif [ -z "${AUTH_KEY}" ]; then
+    echo no auth key
     rv=1
 fi
 
