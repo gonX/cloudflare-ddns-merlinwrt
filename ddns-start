@@ -1,8 +1,17 @@
 #!/bin/sh
 
 BASEURL="https://api.cloudflare.com/client/v4"
+EXPECTED_INTERFACE="external0"
 
 ## CONFIG END
+
+# $IFACE comes from networkd-dispatcher
+if [ ! -z "$EXPECTED_INTERFACE" ] && [ ! -z "$IFACE" ]; then
+    if [ "$IFACE" != "$EXPECTED_INTERFACE" ]; then
+        echo "DDNS script does not apply for this interface! Exiting without errors"
+        exit 0
+    fi
+fi
 
 source $(dirname "$0")/ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY
 
@@ -39,7 +48,7 @@ fi
 JSONDATA='{"type":"A","name":"'
 JSONDATA="${JSONDATA}${DOMAIN_NAME}"
 JSONDATA="${JSONDATA}\",\"content\":\""
-JSONDATA="${JSONDATA}${1}"
+JSONDATA="${JSONDATA}${ADDR}" # $ADDR comes from networkd-dispatcher
 JSONDATA="${JSONDATA}\"}"
 
 # Tell CloudFlare about our IP
@@ -53,10 +62,4 @@ if [ "$rv" == 0 ]; then
     fi
 fi
 
-# /sbin/ddns_custom_updated is the other way around, as it takes 1 as success, and 0 on failure
-if [ "$rv" == 0 ]; then
-    /sbin/ddns_custom_updated 1
-else
-    echo nope
-    /sbin/ddns_custom_updated 0
-fi
+exit "$rv"
