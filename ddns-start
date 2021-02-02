@@ -4,7 +4,7 @@ BASEURL="https://api.cloudflare.com/client/v4"
 
 ## CONFIG END
 
-source /jffs/scripts/ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY
+source $(dirname "$0")/ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY
 
 function updateCloudflare {
     curl -X PUT "${BASEURL}/zones/${ZONE_ID}/dns_records/${ZONE_OID}" \
