@@ -1,2 +1,6 @@
 *.swp
 /ddns.config
+cloudflare-ddns-networkd/
+pkg/
+src/
+*.pkg.tar.*
