@@ -4,6 +4,8 @@ BASEURL="https://api.cloudflare.com/client/v4"
 
 ## CONFIG END
 
+source $(dirname "$0")/ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY, EXPECTED_INTERFACE
+
 # $IFACE comes from networkd-dispatcher
 if [ ! -z "$EXPECTED_INTERFACE" ] && [ ! -z "$IFACE" ]; then
     if [ "$IFACE" != "$EXPECTED_INTERFACE" ]; then
@@ -11,8 +13,6 @@ if [ ! -z "$EXPECTED_INTERFACE" ] && [ ! -z "$IFACE" ]; then
         exit 0
     fi
 fi
-
-source $(dirname "$0")/ddns.config # imports ZONE_ID, ZONE_OID, DOMAIN_NAME, AUTH_EMAIL, AUTH_KEY, EXPECTED_INTERFACE
 
 function updateCloudflare {
     curl -X PUT "${BASEURL}/zones/${ZONE_ID}/dns_records/${ZONE_OID}" \
